@@ -65,21 +65,22 @@ async function main() {
     }).toString('hex');
 
     let decodedPsbt = decodeResponse.data.result;
-    let utxo = decodedPsbt.tx.vin[0];
 
-    let prevTx = await client.post(`/wallet/${walletName}`, {
-        method: "getrawtransaction",
-        params: [utxo.txid, false]
-    }).then(response => response.data.result);
+    let inputs = await Promise.all(decodedPsbt.tx.vin.map(async utxo => {
+        let prevTx = await client.post(`/wallet/${walletName}`, {
+            method: "getrawtransaction",
+            params: [utxo.txid, false]
+        }).then(response => response.data.result);
 
-    let ledgerPrevTx = btc.splitTransaction(prevTx, true);
+        let ledgerPrevTx = btc.splitTransaction(prevTx, true);
 
-    let inputIndex = 0;
+        return [ledgerPrevTx, utxo.vout]
+    }));
+    let derivationPaths = decodedPsbt.inputs.map(input => input.bip32_derivs[0].path);
+
     let signedTx = await btc.createPaymentTransactionNew({
-        inputs: [
-            [ledgerPrevTx, utxo.vout]
-        ],
-        associatedKeysets: [ decodedPsbt.inputs[inputIndex].bip32_derivs[0].path ],
+        inputs: inputs,
+        associatedKeysets: derivationPaths,
         outputScriptHex,
         segwit: true,
         additionals: ["bech32"]
