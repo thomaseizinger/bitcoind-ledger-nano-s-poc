@@ -52,10 +52,17 @@ async function main() {
     let transport = await TransportNodeHid.default.open();
     const btc = new AppBtc.default(transport)
 
-    // TODO: Fix this: all we need are the outputs serialized in consensus encoding (I think)
-    const newTx = psbt.__CACHE.__TX;
-    let outLedgerTx = btc.splitTransaction(newTx.toHex(), true);
-    const outputScriptHex = await serializer.serializeTransactionOutputs(outLedgerTx).toString('hex');
+    const outputScriptHex = await serializer.serializeTransactionOutputs({
+        outputs: psbt.txOutputs.map(output => {
+            let amount = Buffer.alloc(8);
+            amount.writeBigUInt64LE(BigInt(output.value), 0);
+
+            return {
+                amount: amount,
+                script: output.script
+            }
+        })
+    }).toString('hex');
 
     let decodedPsbt = decodeResponse.data.result;
     let utxo = decodedPsbt.tx.vin[0];
