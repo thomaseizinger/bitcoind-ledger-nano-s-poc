@@ -2,9 +2,12 @@ const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid");
 const AppBtc = require("@ledgerhq/hw-app-btc");
 const createXpub = require('create-xpub');
 const bitcoinjs = require('bitcoinjs-lib');
+const logs = require("@ledgerhq/logs");
+
+// logs.listen(log => console.log("NANO-LEDGER-S:", log))
 
 function makeFingerPrint(publicKey) {
-    return bitcoinjs.crypto.ripemd160(Buffer.from(compressPublicKey(publicKey), 'hex')).toString('hex').substr(0, 8);
+    return bitcoinjs.crypto.hash160(Buffer.from(compressPublicKey(publicKey), 'hex')).toString('hex').substr(0, 8);
 }
 
 const compressPublicKey = publicKey => {
