@@ -6,11 +6,12 @@ INTERNAL_WALLET_DESCRIPTOR=$(node ./print_wallet_descriptor.js 1);
 echo "External wallet descriptor: $EXTERNAL_WALLET_DESCRIPTOR"
 echo "Internal wallet descriptor: $INTERNAL_WALLET_DESCRIPTOR"
 
-WALLET_NAME="nano-ledger-s-2"
+WALLET_NAME="nano-ledger-s"
 
 echo "Importing into wallet $WALLET_NAME"
 
-#docker exec bitcoin bitcoin-cli -regtest createwallet $WALLET_NAME true true > /dev/null
+# TODO don't fail if wallet already exists
+docker exec bitcoin bitcoin-cli -regtest createwallet $WALLET_NAME true true > /dev/null
 EXTERNAL_WALLET_DESCRIPTOR=$(docker exec bitcoin bitcoin-cli -regtest getdescriptorinfo "$EXTERNAL_WALLET_DESCRIPTOR" | jq -r '.descriptor')
 IMPORT_REQUEST_EXTERNAL=$(jq --arg DESC $EXTERNAL_WALLET_DESCRIPTOR '. + {desc: $DESC, internal: false}' import_multi_request.json)
 
