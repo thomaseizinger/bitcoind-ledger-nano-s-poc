@@ -27,7 +27,7 @@ const getWalletDescriptors = async (chain) => {
     const master = await btc.getWalletPublicKey("", { format: "bech32" })
     let fingerprint = makeFingerPrint(master.publicKey);
 
-    let path = "/44'/1'/0'";
+    let path = "/84'/1'/0'";
     const result = await btc.getWalletPublicKey(`m${path}`, { format: "bech32" })
     let xpub = createXpub({
         networkVersion: createXpub.testnet,

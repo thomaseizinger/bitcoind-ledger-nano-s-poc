@@ -10,7 +10,7 @@ const serializer = require('@ledgerhq/hw-app-btc/lib/serializeTransaction');
 // logs.listen(log => console.log("NANO-LEDGER-S:", log))
 
 async function main() {
-    const {stdout} = await exec('docker exec bitcoind-regtest cat /root/.bitcoin/regtest/.cookie');
+    const {stdout} = await exec('docker exec bitcoin cat /root/.bitcoin/regtest/.cookie');
     let [username, password] = stdout.split(":");
 
     let client = axios.create({
@@ -35,7 +35,7 @@ async function main() {
             ],
             null,
             {
-                feeRate: 0
+                feeRate: 0.001
             }
         ]
     });
